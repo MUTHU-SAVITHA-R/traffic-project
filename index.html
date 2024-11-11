@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traffic Signal Penalty - Refund Scheme</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .motto {
+            font-style: italic;
+            color: #555;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .rules {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+        }
+        .contact {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            color: #fff;
+            background-color: #333;
+            border: none;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background-color: #555;
+        }
+    </style>
+</head>
+<body>
+    <!-- First Page -->
+    <div class="container" id="firstPage">
+        <h1>Traffic Signal Penalty - Refund Scheme</h1>
+        <p class="motto">Our Motto: People should be aware and responsible about road safety.</p>
+        
+        <!-- Login Form -->
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="accountNumber">Account Number:</label>
+                <input type="text" id="accountNumber" name="accountNumber" required>
+            </div>
+            <div class="form-group">
+                <label for="phoneNumber">Phone Number:</label>
+                <input type="text" id="phoneNumber" name="phoneNumber" required>
+            </div>
+            <button type="submit" class="btn">Login</button>
+        </form>
+
+        <!-- Rules Section -->
+        <div class="rules">
+            <h2>Rules</h2>
+            <ol>
+                <li>Always wear a helmet while riding a two-wheeler.</li>
+                <li>Follow traffic signals and road safety guidelines.</li>
+                <li>Violations will incur a fine as per the scheme.</li>
+                <li>Repeated violations may decrease penalty amounts.</li>
+            </ol>
+        </div>
+
+        <!-- Contact Details -->
+        <div class="contact">
+            <p>Contact us at: <a href="mailto:support@example.com">support@example.com</a></p>
+            <p>Phone: +123-456-7890</p>
+        </div>
+    </div>
+
+    <!-- Second Page -->
+    <div class="container" id="secondPage" style="display: none;">
+        <h1>Account Details</h1>
+        
+        <!-- Display Account Information -->
+        <p><strong>Name:</strong> John Doe</p>
+        <p><strong>Bike Number:</strong> TN-09-1234</p>
+        <p><strong>Account Number:</strong> 12345678</p>
+        <p><strong>Account Balance: ₹<span id="accountBalance">0</span></p>
+        <p><strong>Current Fine: ₹<span id="fineAmount">5000</span></p>
+        <p><strong>Time Left for Refund:</strong> <span id="refundTime">5 years</span></p>
+
+        <!-- Payment Section -->
+        <form id="paymentForm">
+            <div class="form-group">
+                <label for="fineAmountInput">Fine Amount:</label>
+                <input type="number" id="fineAmountInput" name="fineAmount" required readonly>
+            </div>
+            <button type="submit" class="btn">Pay Fine</button>
+        </form>
+    </div>
+
+    <script>
+        let initialFine = 5000;
+        let currentFine = initialFine;
+        let accountBalance = 0;
+        let violationCount = 0;
+        let lastViolationDate = new Date();
+        let refundEligibilityDate = new Date(lastViolationDate.getFullYear() + 5, lastViolationDate.getMonth(), lastViolationDate.getDate());
+
+        // Function to update the fine and balance on the page
+        function updatePage() {
+            document.getElementById('fineAmountInput').value = currentFine;
+            document.getElementById('accountBalance').textContent = accountBalance;
+            document.getElementById('fineAmount').textContent = currentFine;
+            document.getElementById('refundTime').textContent = calculateTimeRemainingForRefund();
+        }
+
+        // Function to calculate time remaining for the refund (5 years)
+        function calculateTimeRemainingForRefund() {
+            let timeRemaining = refundEligibilityDate - new Date();
+            if (timeRemaining <= 0) {
+                return 'Refund is available now';
+            } else {
+                let daysRemaining = Math.ceil(timeRemaining / (1000 * 3600 * 24));
+                return ${daysRemaining} days left;
+            }
+        }
+
+        // Handle login form submission
+        document.getElementById('loginForm').onsubmit = function(event) {
+            event.preventDefault();
+            // Hide first page and show second page
+            document.getElementById('firstPage').style.display = 'none';
+            document.getElementById('secondPage').style.display = 'block';
+            updatePage();
+        };
+
+        // Handle payment form submission
+        document.getElementById('paymentForm').onsubmit = function(event) {
+            event.preventDefault();
+
+            // Deduct fine from account balance
+            if (accountBalance >= currentFine) {
+                accountBalance -= currentFine;
+                alert(Fine of ₹${currentFine} paid successfully!);
+                
+                // Update fine amount for next violation
+                violationCount++;
+                if (violationCount < 3) {
+                    currentFine = Math.round(currentFine * 0.75); // Reduce by 25% for next violation
+                } else {
+                    currentFine = 1000; // Minimum fine for further violations
+                }
+
+                // Check if refund is available
+                if (new Date() >= refundEligibilityDate) {
+                    const refund = accountBalance * 0.50;
+                    accountBalance -= refund;
+                    alert(You are eligible for a refund! ₹${refund} has been refunded.);
+                }
+
+                // Update the page with new balance and fine
+                updatePage();
+            } else {
+                alert('Insufficient balance to pay the fine!');
+            }
+        };
+    </script>
+</body>
+</html>
